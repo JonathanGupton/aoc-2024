@@ -53,7 +53,6 @@ def part_two():
     print(similarity)
 
 
-
 if __name__ == '__main__':
     part_one()
     part_two()
