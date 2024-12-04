@@ -54,7 +54,9 @@ def part_a():
 
 
 def part_b_example():
-    example2 = r"xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
+    example2 = (
+        r"xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
+    )
     result = parse_and_process_with_dos_and_donts(example2)
     print(result)  # 48
 
@@ -66,7 +68,7 @@ def part_b():
     print(result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     part_a_example()
     part_a()
     part_b_example()

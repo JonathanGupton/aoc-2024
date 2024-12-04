@@ -31,7 +31,7 @@ def is_part_a_safe(row) -> bool:
 
 def is_safe_removing_one_level(row) -> bool:
     for i in range(len(row)):
-        new_row = row[:i] + row[i + 1:]
+        new_row = row[:i] + row[i + 1 :]
         if is_part_a_safe(new_row):
             return True
     return False
@@ -87,6 +87,6 @@ def part_b():
     print(safe)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     part_a()
     part_b()
