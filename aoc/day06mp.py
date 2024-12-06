@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from itertools import cycle
 from itertools import product
 from pathlib import Path
+import multiprocessing as mp
+from functools import partial
 
 Position = tuple[str, complex]
 
@@ -95,7 +97,33 @@ def path_has_a_loop(
         current_position = (direction, current_coordinate)
 
 
-def part_a_example():
+def process_coordinate(
+    coord: tuple[int, int], start: Position, floorplan: dict[complex, str], edges: Edge
+) -> bool:
+    x, y = coord
+    coordinate = complex(x, y)
+    if coordinate == start[1] or coordinate in floorplan:
+        return False
+    new_floorplan = floorplan.copy()
+    new_floorplan[coordinate] = "#"
+    return path_has_a_loop(start, new_floorplan, edges)
+
+
+def get_count_of_blocking_coordinates(start, floorplan, edges) -> int:
+    coordinates = [
+        (coord.real, coord.imag)
+        for coord in find_all_traversed_locations(start, floorplan, edges)
+    ]
+    with mp.Pool(processes=mp.cpu_count()) as pool:
+        process_coord = partial(
+            process_coordinate, start=start, floorplan=floorplan, edges=edges
+        )
+        results = pool.map(process_coord, coordinates)
+    loop_positions = sum(results)
+    return loop_positions
+
+
+def example_part_a():
     fp = Path("./example/day06-example-01.txt")
     data = get_data(fp)
     start, floorplan, edges = parse_data(data)
@@ -111,48 +139,24 @@ def part_a():
     print(len(traversed_locations))
 
 
-def part_b_example():
+def example_part_b():
     fp = Path("./example/day06-example-01.txt")
     data = get_data(fp)
     start, floorplan, edges = parse_data(data)
-    loop_positions = 0
-    coordinates = [
-        (coord.real, coord.imag)
-        for coord in find_all_traversed_locations(start, floorplan, edges)
-    ]
-    for x, y in coordinates:
-        coordinate = complex(x, y)
-        if coordinate == start[1] or coordinate in floorplan:
-            continue
-        new_floorplan = floorplan.copy()
-        new_floorplan[coordinate] = "#"
-        if path_has_a_loop(start, new_floorplan, edges):
-            loop_positions += 1
-    print(loop_positions)
+    loop_positions = get_count_of_blocking_coordinates(start, floorplan, edges)
+    print(loop_positions, "= 6")
 
 
 def part_b():
     fp = Path("./data/day06.txt")
     data = get_data(fp)
     start, floorplan, edges = parse_data(data)
-    loop_positions = 0
-    coordinates = [
-        (coord.real, coord.imag)
-        for coord in find_all_traversed_locations(start, floorplan, edges)
-    ]
-    for x, y in coordinates:
-        coordinate = complex(x, y)
-        if coordinate == start[1] or coordinate in floorplan:
-            continue
-        new_floorplan = floorplan.copy()
-        new_floorplan[coordinate] = "#"
-        if path_has_a_loop(start, new_floorplan, edges):
-            loop_positions += 1
+    loop_positions = get_count_of_blocking_coordinates(start, floorplan, edges)
     print(loop_positions)
 
 
 if __name__ == "__main__":
-    part_a_example()
+    example_part_a()
     part_a()
-    part_b_example()
+    example_part_b()
     part_b()
