@@ -1,3 +1,5 @@
+from typing import Callable
+from typing import Iterable
 from typing import Sequence
 from operator import add
 from operator import mul
@@ -20,52 +22,31 @@ def conc(x: int, y: int) -> int:
 
 
 def count_valid_operator_configurations(
-    equations: list[tuple[int, tuple[int, ...]], ...]
+    equations: list[tuple[int, tuple[int, ...]], ...],
+    ops: Iterable[Callable] = (add, mul),
 ) -> int:
     def _valid_configuration(
-        target: int, lop: int, rops: Sequence[int], total: int = 0
+        target: int,
+        lop: int,
+        rops: Sequence[int],
+        ops: Iterable[Callable],
+        total: int = 0,
     ) -> int:
         if target == lop and not rops:
             return 1
         if lop > target or not rops:
             return False
-        for op in [add, mul]:
+        for op in ops:
             new_lop = op(lop, rops[0])
             new_rops = tuple(rops[1:])
-            total += _valid_configuration(target, new_lop, new_rops)
+            total += _valid_configuration(target, new_lop, new_rops, ops=ops)
         return total
 
     total_valid_configurations = 0
     for eq in equations:
         target, nums = eq
         lops, nums = nums[0], tuple(nums[1:])
-        if _valid_configuration(target, lops, nums):
-            total_valid_configurations += target
-        # total_valid_configurations += _valid_configuration(target, lops, nums)
-    return total_valid_configurations
-
-
-def count_valid_operator_configurations2(
-    equations: list[tuple[int, tuple[int, ...]], ...]
-) -> int:
-    def _valid_configuration(
-        target: int, lop: int, rops: Sequence[int], total: int = 0
-    ) -> int:
-        if target == lop and not rops:
-            return 1
-        if lop > target or not rops:
-            return False
-        for op in [add, mul, conc]:
-            new_lop = op(lop, rops[0])
-            new_rops = tuple(rops[1:])
-            total += _valid_configuration(target, new_lop, new_rops)
-        return total
-
-    total_valid_configurations = 0
-    for eq in equations:
-        target, nums = eq
-        lops, nums = nums[0], tuple(nums[1:])
-        if _valid_configuration(target, lops, nums):
+        if _valid_configuration(target, lops, nums, total=0, ops=ops):
             total_valid_configurations += target
     return total_valid_configurations
 
@@ -73,25 +54,28 @@ def count_valid_operator_configurations2(
 def part_a_example1():
     fp = "./example/day07-example01.txt"
     data = parse_data(fp)
-    print(count_valid_operator_configurations(data))
+    print(count_valid_operator_configurations(data), "= 3749")
 
 
 def part_a():
     fp = "./data/day07.txt"
     data = parse_data(fp)
-    print(count_valid_operator_configurations(data))
+    print(count_valid_operator_configurations(data), "= 5540634308362")
 
 
 def part_b_example1():
     fp = "./example/day07-example01.txt"
     data = parse_data(fp)
-    print(count_valid_operator_configurations2(data))
+    print(count_valid_operator_configurations(data, ops=(add, mul, conc)), "= 11387")
 
 
 def part_b():
     fp = "./data/day07.txt"
     data = parse_data(fp)
-    print(count_valid_operator_configurations2(data))
+    print(
+        count_valid_operator_configurations(data, ops=(add, mul, conc)),
+        "= 472290821152397",
+    )
 
 
 if __name__ == "__main__":
