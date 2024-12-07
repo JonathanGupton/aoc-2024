@@ -30,7 +30,6 @@ def count_valid_operator_configurations(
         lop: int,
         rops: Sequence[int],
         ops: Iterable[Callable],
-        total: int = 0,
     ) -> int:
         if target == lop and not rops:
             return 1
@@ -39,14 +38,14 @@ def count_valid_operator_configurations(
         for op in ops:
             new_lop = op(lop, rops[0])
             new_rops = tuple(rops[1:])
-            total += _valid_configuration(target, new_lop, new_rops, ops=ops)
-        return total
+            if _valid_configuration(target, new_lop, new_rops, ops=ops):
+                return True
 
     total_valid_configurations = 0
     for eq in equations:
         target, nums = eq
         lops, nums = nums[0], tuple(nums[1:])
-        if _valid_configuration(target, lops, nums, total=0, ops=ops):
+        if _valid_configuration(target, lops, nums, ops=ops):
             total_valid_configurations += target
     return total_valid_configurations
 
